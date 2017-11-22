@@ -47,8 +47,9 @@ coco=COCO(annFile)
 catIds = coco.getCatIds(catNms=['person']);
 imgIds = coco.getImgIds(catIds=catIds );
 imgIds.sort()
-imgIds=imgIds[:100]
-bestmatch = [[0 for i in range(len(imgIds))] for j in range(len(imgIds))]
+# imgIds=imgIds[:100]
+#bestmatch = [[[] for i in range(len(imgIds))] for j in range(len(imgIds))]
+f= open('bestmatch.txt','w+')
 for i in range(len(imgIds)):
     ma=-1
     imgIds1 = coco.getImgIds(imgIds = [imgIds[i]])
@@ -59,7 +60,7 @@ for i in range(len(imgIds)):
     for k in range(len(anns1)):
         bboxmany1.append(toBbox(encode(coco.annToMask(anns1[k]))))
 
-    bb1 = toBbox(encode(coco.annToMask(anns1[0])))
+    #bb1 = toBbox(encode(coco.annToMask(anns1[0])))
     for j in range(len(imgIds)):
         if i==j:
             continue
@@ -70,9 +71,20 @@ for i in range(len(imgIds)):
         bboxmany2=[]
         for k in range(len(anns2)):
             bboxmany2.append(toBbox(encode(coco.annToMask(anns2[k]))))
-        bb2 = toBbox(encode(coco.annToMask(anns2[0])))
-        bestmatch[i][j]= iou([bb1],[bb2],[1])
-        print iou([bb1],[bb2],[1])[0][0]
 
-pickle.dump(bestmatch,open('bestmatch.txt','w+'))
+        tmp1=[]
+        for k in range(len(anns1)):
+            tmp=[]
+            for l in range(len(anns2)):
+                tmp.append(iou([bboxmany1[k]],[bboxmany2[l]],[1])[0][0])
+            tmp1.append(tmp)
+            # bestmatch[i][j].append(tmp)
+        f.write(str(tmp1))
+        f.write('\n')
+        #print bestmatch[i][j]
+        #bb2 = toBbox(encode(coco.annToMask(anns2[0])))
+        #bestmatch[i][j]= iou([bb1],[bb2],[1])
+        #print iou([bb1],[bb2],[1])[0][0]
+f.close()
+# pickle.dump(bestmatch,open('bestmatch.txt','w+'))
 
